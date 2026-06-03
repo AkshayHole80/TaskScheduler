@@ -9,8 +9,6 @@ import service.TaskExecutor;
 import service.TaskScheduler;
 import strategy.PrioritySchedulingStrategy;
 import strategy.SchedulingStrategy;
-import utils.TaskPriorityComparator;
-
 import java.util.PriorityQueue;
 import java.util.Scanner;
 
@@ -21,10 +19,7 @@ public class Main {
         Scanner scanner =
                 new Scanner(System.in);
 
-        PriorityQueue<Task> taskQueue =
-                new PriorityQueue<>(
-                        new TaskPriorityComparator()
-                );
+        PriorityQueue<Task> taskQueue = new PriorityQueue<>(new util.TaskPriorityComparator());
 
         SchedulingStrategy strategy =
                 new PrioritySchedulingStrategy(

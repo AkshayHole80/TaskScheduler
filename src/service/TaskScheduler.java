@@ -3,7 +3,6 @@ package service;
 import exception.TaskNotFoundException;
 import model.Task;
 import strategy.SchedulingStrategy;
-import utils.TaskPriorityComparator;
 
 import java.util.PriorityQueue;
 
