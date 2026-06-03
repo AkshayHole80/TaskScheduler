@@ -8,6 +8,7 @@ public class Task {
     private final int id;
     private final String name;
     private final Priority priority;
+    private TaskType taskType;
 
     private TaskStatus status;
     private int retryCount;
@@ -15,14 +16,19 @@ public class Task {
     public Task(
             int id,
             String name,
-            Priority priority) {
+            Priority priority,
+            TaskType taskType) {
 
         this.id = id;
         this.name = name;
         this.priority = priority;
+        this.taskType = taskType;
 
         this.status = TaskStatus.PENDING;
-        this.retryCount = 0;
+    }
+
+    public TaskType getTaskType() {
+        return taskType;
     }
 
     public int getId() {

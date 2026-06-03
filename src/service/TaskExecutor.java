@@ -1,110 +1,56 @@
 package service;
 
-import enums.ExecutionResult;
 import enums.TaskStatus;
-import exception.TaskExecutionException;
-import model.ExecutionRecord;
 import model.Task;
-import retry.RetryPolicy;
 
-import java.time.LocalDateTime;
 import java.util.Random;
+import java.util.logging.Logger;
 
 public class TaskExecutor {
 
-    private final RetryPolicy retryPolicy;
-
-    private final HistoryService
-            historyService;
+    private static final Logger logger =
+            Logger.getLogger(TaskExecutor.class.getName());
 
     private final Random random =
             new Random();
 
-    public TaskExecutor(
-            RetryPolicy retryPolicy,
-            HistoryService historyService) {
+    public boolean execute(Task task) {
 
-        this.retryPolicy = retryPolicy;
-        this.historyService =
-                historyService;
-    }
+        task.setStatus(
+                TaskStatus.RUNNING
+        );
 
-    public void execute(Task task) {
+        logger.info(
+                "Executing task : " +
+                        task.getName()
+        );
 
-        while (true) {
+        boolean success =
+                random.nextInt(100) < 70;
 
-            try {
+        if(success) {
 
-                task.setStatus(
-                        TaskStatus.RUNNING);
+            task.setStatus(
+                    TaskStatus.COMPLETED
+            );
 
-                System.out.println(
-                        "\nExecuting : "
-                                + task.getName());
+            logger.info(
+                    "Task completed : " +
+                            task.getName()
+            );
 
-                boolean success =
-                        random.nextInt(100)
-                                < 70;
-
-                if(!success) {
-
-                    throw new TaskExecutionException(
-                            "Execution failed"
-                    );
-                }
-
-                task.setStatus(
-                        TaskStatus.COMPLETED);
-
-                historyService.addRecord(
-                        new ExecutionRecord(
-                                task.getName(),
-                                ExecutionResult.SUCCESS,
-                                LocalDateTime.now()
-                        )
-                );
-
-                System.out.println(
-                        "Completed : "
-                                + task.getName());
-
-                return;
-
-            }
-            catch (TaskExecutionException e) {
-
-                task.incrementRetryCount();
-
-                if(retryPolicy
-                        .shouldRetry(task)) {
-
-                    System.out.println(
-                            "Retrying Task : "
-                                    + task.getName()
-                                    + " Retry Count : "
-                                    + task.getRetryCount());
-
-                }
-                else {
-
-                    task.setStatus(
-                            TaskStatus.FAILED);
-
-                    historyService.addRecord(
-                            new ExecutionRecord(
-                                    task.getName(),
-                                    ExecutionResult.FAILED,
-                                    LocalDateTime.now()
-                            )
-                    );
-
-                    System.out.println(
-                            "Task Failed : "
-                                    + task.getName());
-
-                    return;
-                }
-            }
+            return true;
         }
+
+        task.setStatus(
+                TaskStatus.FAILED
+        );
+
+        logger.warning(
+                "Task failed : " +
+                        task.getName()
+        );
+
+        return false;
     }
 }

@@ -2,63 +2,58 @@ package service;
 
 import exception.TaskNotFoundException;
 import model.Task;
+import repository.TaskRepository;
 import strategy.SchedulingStrategy;
 
-import java.util.PriorityQueue;
+import java.util.logging.Logger;
 
 public class TaskScheduler {
 
-    private final PriorityQueue<Task> taskQueue;
+    private static final Logger logger =
+            Logger.getLogger(TaskScheduler.class.getName());
 
-    private final SchedulingStrategy
-            schedulingStrategy;
+    private final SchedulingStrategy strategy;
+    private final TaskRepository repository;
 
     public TaskScheduler(
-            SchedulingStrategy schedulingStrategy,
-            PriorityQueue<Task> taskQueue) {
+            SchedulingStrategy strategy,
+            TaskRepository repository) {
 
-        this.schedulingStrategy =
-                schedulingStrategy;
-
-        this.taskQueue = taskQueue;
+        this.strategy = strategy;
+        this.repository = repository;
     }
 
     public void addTask(Task task) {
 
-        taskQueue.offer(task);
+        repository.save(task);
 
-        System.out.println(
-                "Task Added : "
-                        + task.getName());
+        logger.info(
+                "Task added : " + task.getName()
+        );
     }
 
     public Task getNextTask() {
 
-        Task task =
-                schedulingStrategy.getNextTask();
+        Task task = strategy.getNextTask();
 
         if(task == null) {
 
             throw new TaskNotFoundException(
-                    "No tasks available."
+                    "No tasks available"
             );
         }
+
+        logger.info(
+                "Task selected : " + task.getName()
+        );
 
         return task;
     }
 
     public void viewTasks() {
 
-        if(taskQueue.isEmpty()) {
-
-            System.out.println(
-                    "No pending tasks.");
-            return;
-        }
-
-        System.out.println(
-                "\n===== PENDING TASKS =====");
-
-        taskQueue.forEach(System.out::println);
+        repository
+                .findAll()
+                .forEach(System.out::println);
     }
 }
